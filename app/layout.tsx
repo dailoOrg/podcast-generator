@@ -6,8 +6,8 @@ import Navigation from "@/components/Navigation";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "AI Tools",
-  description: "Collection of AI-powered tools",
+  title: "Dailo Podcast Generator",
+  description: "AI-powered platform for creating podcast-style conversations",
 };
 
 export default function RootLayout({

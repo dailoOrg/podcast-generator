@@ -8,7 +8,7 @@ export default function Navigation() {
           <div className="flex space-x-7">
             <div className="flex items-center">
               <Link href="/" className="text-gray-800 text-xl font-bold">
-                AI Tools
+                Dailo
               </Link>
             </div>
             <div className="flex items-center space-x-4">
