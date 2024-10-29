@@ -285,12 +285,24 @@ export default function TranscriptPlayer() {
                 </Button>
 
                 {mergedAudioPath && (
-                  <Button
-                    onClick={playMergedAudio}
-                    className="ml-2"
-                  >
-                    Play Merged Audio
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button onClick={playMergedAudio}>
+                      Play Merged Audio
+                    </Button>
+                    <Button 
+                      onClick={() => {
+                        const link = document.createElement('a');
+                        link.href = mergedAudioPath;
+                        link.download = `${selectedTranscript.title}_merged.wav`;
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                      }}
+                      variant="outline"
+                    >
+                      Download Merged Audio
+                    </Button>
+                  </div>
                 )}
               </div>
             )}
