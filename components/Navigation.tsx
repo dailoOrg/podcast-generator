@@ -15,9 +15,6 @@ export default function Navigation() {
               <Link href="/pet-name" className="text-gray-600 hover:text-blue-600">
                 Pet Name Generator
               </Link>
-              <Link href="/text-to-speech" className="text-gray-600 hover:text-blue-600">
-                Text to Speech
-              </Link>
               <Link href="/transcript" className="text-gray-600 hover:text-blue-600">
                 Transcript Player
               </Link>
