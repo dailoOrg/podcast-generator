@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { sampleTranscript } from '@/data/transcripts/sample-conversation';
@@ -8,26 +8,59 @@ interface AudioFile {
   path: string;
 }
 
+interface AudioFileCheck {
+  fileName: string;
+  exists: boolean;
+  path: string;
+}
+
 export default function TranscriptPlayer() {
   const [processing, setProcessing] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [audioFiles, setAudioFiles] = useState<AudioFile[]>([]);
   const audioRef = useRef<HTMLAudioElement>(null);
 
-  const generateAndSaveAudio = async () => {
+  const checkExistingFiles = async () => {
+    const fileNames = sampleTranscript.dialogue.map((line, index) => {
+      const speaker = sampleTranscript.speakers.find(s => s.id === line.speakerId);
+      return `${sampleTranscript.id}_${speaker?.id}_${index}.mp3`;
+    });
+
+    const response = await fetch('/api/check-audio', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ fileNames }),
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to check existing files');
+    }
+
+    const { files } = await response.json();
+    return files as AudioFileCheck[];
+  };
+
+  const generateAndSaveAudio = async (missingFiles: string[]) => {
     setProcessing(true);
     const files: AudioFile[] = [];
 
     try {
       for (let i = 0; i < sampleTranscript.dialogue.length; i++) {
-        console.log(`Processing dialogue line ${i + 1}`);
+        const fileName = `${sampleTranscript.id}_${sampleTranscript.dialogue[i].speakerId}_${i}.mp3`;
         
+        if (!missingFiles.includes(fileName)) {
+          // File exists, just add it to the list
+          files.push({
+            speakerId: sampleTranscript.dialogue[i].speakerId,
+            path: `/audio/${fileName}`
+          });
+          continue;
+        }
+
         const line = sampleTranscript.dialogue[i];
         const speaker = sampleTranscript.speakers.find(s => s.id === line.speakerId);
         
-        console.log(`Generating speech for speaker: ${speaker?.name}`);
-        
-        // Generate speech
+        // Generate speech for missing file
         const response = await fetch('/api/text-to-speech', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -38,16 +71,11 @@ export default function TranscriptPlayer() {
         });
 
         if (!response.ok) {
-          console.error(`Speech generation failed with status: ${response.status}`);
           throw new Error(`Failed to generate speech for line ${i + 1}`);
         }
 
-        // Get audio blob and create file
         const audioBlob = await response.blob();
-        const fileName = `${sampleTranscript.id}_${speaker?.id}_${i}.mp3`;
         const audioFile = new File([audioBlob], fileName, { type: 'audio/mpeg' });
-
-        console.log(`Saving audio file: ${fileName}`);
 
         // Save file
         const formData = new FormData();
@@ -59,14 +87,10 @@ export default function TranscriptPlayer() {
         });
 
         if (!saveResponse.ok) {
-          console.error(`File save failed with status: ${saveResponse.status}`);
-          const errorData = await saveResponse.json();
-          console.error('Error details:', errorData);
           throw new Error(`Failed to save audio file ${fileName}`);
         }
 
         const { path } = await saveResponse.json();
-        console.log(`File saved successfully with path: ${path}`);
         files.push({ speakerId: line.speakerId, path });
       }
 
@@ -78,13 +102,39 @@ export default function TranscriptPlayer() {
     }
   };
 
-  const playSequence = () => {
+  const initializeAudio = async () => {
+    try {
+      setProcessing(true);
+      const existingFiles = await checkExistingFiles();
+      
+      const missingFiles = existingFiles
+        .filter(file => !file.exists)
+        .map(file => file.fileName);
+
+      if (missingFiles.length > 0) {
+        await generateAndSaveAudio(missingFiles);
+      } else {
+        // All files exist, just set the paths
+        const files = existingFiles.map(file => ({
+          speakerId: sampleTranscript.dialogue[existingFiles.indexOf(file)].speakerId,
+          path: file.path
+        }));
+        setAudioFiles(files);
+      }
+    } catch (error) {
+      console.error('Error initializing audio:', error);
+    } finally {
+      setProcessing(false);
+    }
+  };
+
+  const playSequence = useCallback(() => {
     if (audioRef.current && currentIndex < audioFiles.length) {
       audioRef.current.src = audioFiles[currentIndex].path;
       audioRef.current.play();
       audioRef.current.onended = () => setCurrentIndex(prev => prev + 1);
     }
-  };
+  }, [audioFiles, currentIndex]);
 
   return (
     <Card className="w-full max-w-2xl">
@@ -93,10 +143,10 @@ export default function TranscriptPlayer() {
       </CardHeader>
       <CardContent className="space-y-4">
         <Button 
-          onClick={generateAndSaveAudio}
+          onClick={initializeAudio}
           disabled={processing}
         >
-          {processing ? 'Processing...' : 'Generate Audio'}
+          {processing ? 'Processing...' : 'Initialize Audio'}
         </Button>
 
         {audioFiles.length > 0 && (
