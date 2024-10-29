@@ -2,6 +2,7 @@ import { useState, useRef, useCallback } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { sampleTranscript } from '@/data/transcripts/sample-conversation';
+import { mergeAudioFiles } from '@/utils/audioMerger';
 
 interface AudioFile {
   speakerId: string;
@@ -18,6 +19,8 @@ export default function TranscriptPlayer() {
   const [processing, setProcessing] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [audioFiles, setAudioFiles] = useState<AudioFile[]>([]);
+  const [mergedAudioPath, setMergedAudioPath] = useState<string | null>(null);
+  const [merging, setMerging] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
 
   const checkExistingFiles = async () => {
@@ -136,6 +139,60 @@ export default function TranscriptPlayer() {
     }
   }, [audioFiles, currentIndex]);
 
+  const handleMergeAudio = async () => {
+    if (audioFiles.length === 0) return;
+    
+    setMerging(true);
+    try {
+      // Check if merged file already exists
+      const mergedFileName = `${sampleTranscript.id}_merged.wav`;
+      const response = await fetch('/api/check-audio', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fileNames: [mergedFileName] }),
+      });
+
+      const { files } = await response.json();
+      
+      if (files[0].exists) {
+        setMergedAudioPath(files[0].path);
+        return;
+      }
+
+      // Merge audio files
+      const audioUrls = audioFiles.map(file => file.path);
+      const mergedBlob = await mergeAudioFiles(audioUrls);
+
+      // Save merged file
+      const formData = new FormData();
+      formData.append('file', new File([mergedBlob], mergedFileName, { type: 'audio/wav' }));
+      formData.append('transcriptId', sampleTranscript.id);
+
+      const saveResponse = await fetch('/api/save-merged-audio', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!saveResponse.ok) {
+        throw new Error('Failed to save merged audio');
+      }
+
+      const { path } = await saveResponse.json();
+      setMergedAudioPath(path);
+    } catch (error) {
+      console.error('Error merging audio files:', error);
+    } finally {
+      setMerging(false);
+    }
+  };
+
+  const playMergedAudio = () => {
+    if (audioRef.current && mergedAudioPath) {
+      audioRef.current.src = mergedAudioPath;
+      audioRef.current.play();
+    }
+  };
+
   return (
     <Card className="w-full max-w-2xl">
       <CardHeader>
@@ -150,12 +207,31 @@ export default function TranscriptPlayer() {
         </Button>
 
         {audioFiles.length > 0 && (
-          <Button 
-            onClick={playSequence}
-            disabled={currentIndex >= audioFiles.length}
-          >
-            Play Conversation
-          </Button>
+          <div className="space-y-2">
+            <Button 
+              onClick={playSequence}
+              disabled={currentIndex >= audioFiles.length}
+            >
+              Play Sequence
+            </Button>
+
+            <Button
+              onClick={handleMergeAudio}
+              disabled={merging}
+              className="ml-2"
+            >
+              {merging ? 'Merging...' : 'Merge Audio'}
+            </Button>
+
+            {mergedAudioPath && (
+              <Button
+                onClick={playMergedAudio}
+                className="ml-2"
+              >
+                Play Merged Audio
+              </Button>
+            )}
+          </div>
         )}
 
         <div className="space-y-2">
