@@ -12,8 +12,8 @@ export default function Navigation() {
               </Link>
             </div>
             <div className="flex items-center space-x-4">
-              <Link href="/pet-name" className="text-gray-600 hover:text-blue-600">
-                Pet Name Generator
+              <Link href="/transcript-formatter" className="text-gray-600 hover:text-gray-900">
+                Transcript Formatter
               </Link>
               <Link href="/transcript" className="text-gray-600 hover:text-blue-600">
                 Transcript Player

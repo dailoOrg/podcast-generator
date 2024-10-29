@@ -4,26 +4,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { useTranscriptProcessor } from '@/hooks/useTranscriptProcessor';
 import type { Transcript } from '@/types/transcript';
+import { Select, SelectTrigger, SelectValue, SelectItem } from "@/components/ui/select";
+import { transcriptStorage } from '@/utils/transcriptStorage';
 
 export default function TranscriptProcessor() {
-  const [transcript, setTranscript] = useState<Transcript | null>(null);
+  const [selectedTranscript, setSelectedTranscript] = useState<Transcript | null>(null);
   const { processing, progress, error, processTranscript } = useTranscriptProcessor();
-
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      try {
-        const content = JSON.parse(e.target?.result as string);
-        setTranscript(content);
-      } catch (err) {
-        console.error('Failed to parse transcript file:', err);
-      }
-    };
-    reader.readAsText(file);
-  };
+  const transcripts = transcriptStorage.getTranscripts();
 
   return (
     <Card className="w-full max-w-2xl">
@@ -31,18 +18,34 @@ export default function TranscriptProcessor() {
         <CardTitle>Transcript Processor</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        <input
-          type="file"
-          accept=".json"
-          onChange={handleFileUpload}
-          disabled={processing}
-        />
+        {transcripts.length === 0 ? (
+          <p className="text-gray-500">No transcripts available. Create one using the Transcript Formatter.</p>
+        ) : (
+          <Select
+            value={selectedTranscript?.id}
+            onValueChange={(value) => {
+              const transcript = transcriptStorage.getTranscript(value);
+              setSelectedTranscript(transcript);
+            }}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Select a transcript" />
+            </SelectTrigger>
+            <SelectContent>
+              {transcripts.map((t) => (
+                <SelectItem key={t.id} value={t.id}>
+                  {t.title}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        )}
         
-        {transcript && (
+        {selectedTranscript && (
           <div className="space-y-4">
-            <h3 className="font-semibold">{transcript.title}</h3>
+            <h3 className="font-semibold">{selectedTranscript.title}</h3>
             <Button
-              onClick={() => processTranscript(transcript)}
+              onClick={() => processTranscript(selectedTranscript)}
               disabled={processing}
             >
               {processing ? 'Processing...' : 'Process Transcript'}

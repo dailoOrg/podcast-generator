@@ -1,0 +1,30 @@
+{
+  "id": "conv-001",
+  "title": "ai-pod-01",
+  "speakers": [
+    {
+      "id": "speaker-1",
+      "name": "Alex",
+      "voice": "onyx"
+    },
+    {
+      "id": "speaker-2",
+      "name": "Jane",
+      "voice": "nova"
+    }
+  ],
+  "dialogue": [
+    {
+      "speakerId": "speaker-1",
+      "text": "Hello, and welcome to another episode of our podcast. I'm Alex."
+    },
+    {
+      "speakerId": "speaker-2",
+      "text": "And I'm Jane. Today, we're going to demystify a topic that's been making waves in the tech world - Machine Learning."
+    },
+    {
+      "speakerId": "speaker-1",
+      "text": "That's right, Jane. Machine Learning, or ML, is a subset of artificial intelligence that's transforming industries, from healthcare to finance to retail. But what is it, exactly?"
+    }
+  ]
+}
