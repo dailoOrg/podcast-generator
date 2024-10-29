@@ -103,9 +103,9 @@ function writeString(view: DataView, offset: number, string: string): void {
   }
 }
 
-function floatTo16BitPCM(output: DataView, offset: number, input: Float32Array): void {
+function floatTo16BitPCM(view: DataView, offset: number, input: Float32Array): void {
   for (let i = 0; i < input.length; i++, offset += 2) {
     const s = Math.max(-1, Math.min(1, input[i]));
-    output.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7FFF, true);
+    view.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7FFF, true);
   }
 } 

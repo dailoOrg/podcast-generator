@@ -1,7 +1,9 @@
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { sampleTranscript } from '@/data/transcripts/sample-conversation';
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
+import { transcriptStorage } from '@/utils/transcriptStorage';
+import type { Transcript } from '@/types/transcript';
 import { mergeAudioFiles } from '@/utils/audioMerger';
 
 interface AudioFile {
@@ -21,12 +23,32 @@ export default function TranscriptPlayer() {
   const [audioFiles, setAudioFiles] = useState<AudioFile[]>([]);
   const [mergedAudioPath, setMergedAudioPath] = useState<string | null>(null);
   const [merging, setMerging] = useState(false);
+  const [selectedTranscript, setSelectedTranscript] = useState<Transcript | null>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
+  const [transcripts, setTranscripts] = useState<Transcript[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadTranscripts = async () => {
+      try {
+        const response = await fetch('/api/transcripts');
+        if (!response.ok) throw new Error('Failed to load transcripts');
+        const data = await response.json();
+        setTranscripts(data);
+      } catch (error) {
+        console.error('Error loading transcripts:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadTranscripts();
+  }, []);
 
   const checkExistingFiles = async () => {
-    const fileNames = sampleTranscript.dialogue.map((line, index) => {
-      const speaker = sampleTranscript.speakers.find(s => s.id === line.speakerId);
-      return `${sampleTranscript.id}_${speaker?.id}_${index}.mp3`;
+    const fileNames = selectedTranscript.dialogue.map((line, index) => {
+      const speaker = selectedTranscript.speakers.find(s => s.id === line.speakerId);
+      return `${selectedTranscript.id}_${speaker?.id}_${index}.mp3`;
     });
 
     const response = await fetch('/api/check-audio', {
@@ -48,20 +70,20 @@ export default function TranscriptPlayer() {
     const files: AudioFile[] = [];
 
     try {
-      for (let i = 0; i < sampleTranscript.dialogue.length; i++) {
-        const fileName = `${sampleTranscript.id}_${sampleTranscript.dialogue[i].speakerId}_${i}.mp3`;
+      for (let i = 0; i < selectedTranscript.dialogue.length; i++) {
+        const fileName = `${selectedTranscript.id}_${selectedTranscript.dialogue[i].speakerId}_${i}.mp3`;
         
         if (!missingFiles.includes(fileName)) {
           // File exists, just add it to the list
           files.push({
-            speakerId: sampleTranscript.dialogue[i].speakerId,
+            speakerId: selectedTranscript.dialogue[i].speakerId,
             path: `/audio/${fileName}`
           });
           continue;
         }
 
-        const line = sampleTranscript.dialogue[i];
-        const speaker = sampleTranscript.speakers.find(s => s.id === line.speakerId);
+        const line = selectedTranscript.dialogue[i];
+        const speaker = selectedTranscript.speakers.find(s => s.id === line.speakerId);
         
         // Generate speech for missing file
         const response = await fetch('/api/text-to-speech', {
@@ -119,7 +141,7 @@ export default function TranscriptPlayer() {
       } else {
         // All files exist, just set the paths
         const files = existingFiles.map(file => ({
-          speakerId: sampleTranscript.dialogue[existingFiles.indexOf(file)].speakerId,
+          speakerId: selectedTranscript.dialogue[existingFiles.indexOf(file)].speakerId,
           path: file.path
         }));
         setAudioFiles(files);
@@ -145,7 +167,7 @@ export default function TranscriptPlayer() {
     setMerging(true);
     try {
       // Check if merged file already exists
-      const mergedFileName = `${sampleTranscript.id}_merged.wav`;
+      const mergedFileName = `${selectedTranscript.id}_merged.wav`;
       const response = await fetch('/api/check-audio', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -163,10 +185,10 @@ export default function TranscriptPlayer() {
       const audioUrls = audioFiles.map(file => file.path);
       const mergedBlob = await mergeAudioFiles(audioUrls);
 
-      // Save merged file
+      // Create FormData and append the merged file
       const formData = new FormData();
       formData.append('file', new File([mergedBlob], mergedFileName, { type: 'audio/wav' }));
-      formData.append('transcriptId', sampleTranscript.id);
+      formData.append('transcriptId', selectedTranscript.id);
 
       const saveResponse = await fetch('/api/save-merged-audio', {
         method: 'POST',
@@ -193,64 +215,105 @@ export default function TranscriptPlayer() {
     }
   };
 
+  const handleTranscriptSelect = async (value: string) => {
+    try {
+      const response = await fetch(`/api/transcripts/${value}`);
+      if (!response.ok) throw new Error('Failed to load transcript');
+      const transcript = await response.json();
+      setSelectedTranscript(transcript);
+      // Reset states
+      setCurrentIndex(0);
+      setAudioFiles([]);
+      setMergedAudioPath(null);
+    } catch (error) {
+      console.error('Error loading transcript:', error);
+    }
+  };
+
   return (
     <Card className="w-full max-w-2xl">
       <CardHeader>
-        <CardTitle>{sampleTranscript.title}</CardTitle>
+        <CardTitle>Transcript Player</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        <Button 
-          onClick={initializeAudio}
-          disabled={processing}
-        >
-          {processing ? 'Processing...' : 'Initialize Audio'}
-        </Button>
-
-        {audioFiles.length > 0 && (
-          <div className="space-y-2">
-            <Button 
-              onClick={playSequence}
-              disabled={currentIndex >= audioFiles.length}
-            >
-              Play Sequence
-            </Button>
-
-            <Button
-              onClick={handleMergeAudio}
-              disabled={merging}
-              className="ml-2"
-            >
-              {merging ? 'Merging...' : 'Merge Audio'}
-            </Button>
-
-            {mergedAudioPath && (
-              <Button
-                onClick={playMergedAudio}
-                className="ml-2"
-              >
-                Play Merged Audio
-              </Button>
-            )}
-          </div>
+        {loading ? (
+          <p>Loading transcripts...</p>
+        ) : transcripts.length === 0 ? (
+          <p className="text-gray-500">No transcripts available. Create one using the Transcript Formatter.</p>
+        ) : (
+          <Select
+            value={selectedTranscript?.id}
+            onValueChange={handleTranscriptSelect}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Select a transcript" />
+            </SelectTrigger>
+            <SelectContent>
+              {transcripts.map((t) => (
+                <SelectItem key={t.id} value={t.id}>
+                  {t.title}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         )}
 
-        <div className="space-y-2">
-          {sampleTranscript.dialogue.map((line, index) => {
-            const speaker = sampleTranscript.speakers.find(s => s.id === line.speakerId);
-            return (
-              <div 
-                key={index}
-                className={`p-2 rounded ${
-                  currentIndex === index ? 'bg-blue-100' : ''
-                }`}
-              >
-                <span className="font-bold">{speaker?.name}: </span>
-                {line.text}
+        {selectedTranscript && (
+          <>
+            <Button 
+              onClick={initializeAudio}
+              disabled={processing}
+            >
+              {processing ? 'Processing...' : 'Initialize Audio'}
+            </Button>
+
+            {audioFiles.length > 0 && (
+              <div className="space-y-2">
+                <Button 
+                  onClick={playSequence}
+                  disabled={currentIndex >= audioFiles.length}
+                >
+                  Play Sequence
+                </Button>
+
+                <Button
+                  onClick={handleMergeAudio}
+                  disabled={merging}
+                  className="ml-2"
+                >
+                  {merging ? 'Merging...' : 'Merge Audio'}
+                </Button>
+
+                {mergedAudioPath && (
+                  <Button
+                    onClick={playMergedAudio}
+                    className="ml-2"
+                  >
+                    Play Merged Audio
+                  </Button>
+                )}
               </div>
-            );
-          })}
-        </div>
-        <audio ref={audioRef} className="hidden" />
+            )}
+
+            <div className="space-y-2">
+              {selectedTranscript.dialogue.map((line, index) => {
+                const speaker = selectedTranscript.speakers.find(s => s.id === line.speakerId);
+                return (
+                  <div 
+                    key={index}
+                    className={`p-2 rounded ${
+                      currentIndex === index ? 'bg-blue-100' : ''
+                    }`}
+                  >
+                    <span className="font-bold">{speaker?.name}: </span>
+                    {line.text}
+                  </div>
+                );
+              })}
+            </div>
+            <audio ref={audioRef} className="hidden" />
+          </>
+        )}
       </CardContent>
     </Card>
   );
