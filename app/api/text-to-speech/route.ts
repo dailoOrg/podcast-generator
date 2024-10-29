@@ -6,19 +6,17 @@ const openai = new OpenAI({
 });
 
 export async function POST(req: Request) {
-  const { text } = await req.json();
+  const { text, voice } = await req.json();
 
   try {
     const mp3 = await openai.audio.speech.create({
       model: "tts-1",
-      voice: "alloy",
+      voice: voice,
       input: text,
     });
 
-    // Convert the audio data to a buffer
     const buffer = Buffer.from(await mp3.arrayBuffer());
 
-    // Return the audio data with appropriate headers
     return new NextResponse(buffer, {
       headers: {
         'Content-Type': 'audio/mpeg',

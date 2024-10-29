@@ -18,6 +18,9 @@ export default function Navigation() {
               <Link href="/text-to-speech" className="text-gray-600 hover:text-blue-600">
                 Text to Speech
               </Link>
+              <Link href="/transcript" className="text-gray-600 hover:text-blue-600">
+                Transcript Player
+              </Link>
             </div>
           </div>
         </div>
