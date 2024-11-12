@@ -9,6 +9,8 @@ import { mergeAudioFiles } from '@/utils/audioMerger';
 interface AudioFile {
   speakerId: string;
   path: string;
+  isFiller?: boolean;
+  lineIndex?: number;
 }
 
 interface AudioFileCheck {
@@ -46,9 +48,13 @@ export default function TranscriptPlayer() {
   }, []);
 
   const checkExistingFiles = async () => {
-    const fileNames = selectedTranscript.dialogue.map((line, index) => {
+    const fileNames = selectedTranscript.dialogue.flatMap((line, index) => {
       const speaker = selectedTranscript.speakers.find(s => s.id === line.speakerId);
-      return `${selectedTranscript.id}_${speaker?.id}_${index}.mp3`;
+      const oppositeSpeaker = selectedTranscript.speakers.find(s => s.id !== line.speakerId);
+      return [
+        `${selectedTranscript.id}_${speaker?.id}_${index}.mp3`,
+        `${selectedTranscript.id}_${oppositeSpeaker?.id}_filler_${index}.mp3`
+      ];
     });
 
     const response = await fetch('/api/check-audio', {
@@ -71,20 +77,19 @@ export default function TranscriptPlayer() {
 
     try {
       for (let i = 0; i < selectedTranscript.dialogue.length; i++) {
-        const fileName = `${selectedTranscript.id}_${selectedTranscript.dialogue[i].speakerId}_${i}.mp3`;
+        const line = selectedTranscript.dialogue[i];
+        const speaker = selectedTranscript.speakers.find(s => s.id === line.speakerId);
+        const fileName = `${selectedTranscript.id}_${speaker?.id}_${i}.mp3`;
         
         if (!missingFiles.includes(fileName)) {
           // File exists, just add it to the list
           files.push({
-            speakerId: selectedTranscript.dialogue[i].speakerId,
+            speakerId: line.speakerId,
             path: `/audio/${fileName}`
           });
           continue;
         }
 
-        const line = selectedTranscript.dialogue[i];
-        const speaker = selectedTranscript.speakers.find(s => s.id === line.speakerId);
-        
         // Generate speech for missing file
         const response = await fetch('/api/text-to-speech', {
           method: 'POST',
@@ -139,11 +144,37 @@ export default function TranscriptPlayer() {
       if (missingFiles.length > 0) {
         await generateAndSaveAudio(missingFiles);
       } else {
-        // All files exist, just set the paths
-        const files = existingFiles.map(file => ({
-          speakerId: selectedTranscript.dialogue[existingFiles.indexOf(file)].speakerId,
-          path: file.path
-        }));
+        // All files exist, set up both main and filler audio files
+        const files: AudioFile[] = [];
+        selectedTranscript.dialogue.forEach((line, index) => {
+          const speaker = selectedTranscript.speakers.find(s => s.id === line.speakerId);
+          const oppositeSpeaker = selectedTranscript.speakers.find(s => s.id !== line.speakerId);
+          
+          // Add main audio file
+          const mainFile = existingFiles.find(f => 
+            f.fileName === `${selectedTranscript.id}_${speaker?.id}_${index}.mp3`
+          );
+          if (mainFile) {
+            files.push({
+              speakerId: speaker?.id || '',
+              path: mainFile.path
+            });
+          }
+
+          // Add filler audio file
+          const fillerFile = existingFiles.find(f => 
+            f.fileName === `${selectedTranscript.id}_${oppositeSpeaker?.id}_filler_${index}.mp3`
+          );
+          if (fillerFile) {
+            files.push({
+              speakerId: oppositeSpeaker?.id || '',
+              path: fillerFile.path,
+              isFiller: true,
+              lineIndex: index
+            });
+          }
+        });
+        
         setAudioFiles(files);
       }
     } catch (error) {
@@ -153,13 +184,50 @@ export default function TranscriptPlayer() {
     }
   };
 
-  const playSequence = useCallback(() => {
-    if (audioRef.current && currentIndex < audioFiles.length) {
-      audioRef.current.src = audioFiles[currentIndex].path;
-      audioRef.current.play();
-      audioRef.current.onended = () => setCurrentIndex(prev => prev + 1);
+  const audioContext = new AudioContext();
+
+  const playSequence = useCallback(async () => {
+    if (currentIndex < audioFiles.length) {
+      try {
+        const audioFile = audioFiles[currentIndex];
+        console.log('Playing audio file:', audioFile.path);
+
+        const audioBuffer = await fetchAudioBuffer(audioFile.path);
+        const source = audioContext.createBufferSource();
+        source.buffer = audioBuffer;
+        source.connect(audioContext.destination);
+        source.start();
+
+        source.onended = () => setCurrentIndex(prev => prev + 1);
+      } catch (error) {
+        console.error('Error in playSequence:', error);
+        alert('Error playing audio. Please try again.');
+      }
     }
-  }, [audioFiles, currentIndex]);
+  }, [audioFiles, currentIndex, audioContext]);
+
+  // Helper function to fetch audio buffer
+  async function fetchAudioBuffer(url: string): Promise<AudioBuffer> {
+    try {
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const arrayBuffer = await response.arrayBuffer();
+      
+      // Log the audio file details for debugging
+      console.log('Audio file details:', {
+        url,
+        size: arrayBuffer.byteLength,
+        type: response.headers.get('content-type')
+      });
+
+      return await audioContext.decodeAudioData(arrayBuffer);
+    } catch (error) {
+      console.error('Error fetching audio:', url, error);
+      throw error;
+    }
+  }
 
   const handleMergeAudio = async () => {
     if (audioFiles.length === 0) return;
@@ -311,7 +379,7 @@ export default function TranscriptPlayer() {
               {selectedTranscript.dialogue.map((line, index) => {
                 const speaker = selectedTranscript.speakers.find(s => s.id === line.speakerId);
                 return (
-                  <div 
+                  <div
                     key={index}
                     className={`p-2 rounded ${
                       currentIndex === index ? 'bg-blue-100' : ''

@@ -16,16 +16,22 @@ export default function TranscriptFormatter() {
 
   const formatTranscript = async () => {
     if (!title.trim() || !text.trim()) {
-      return
+      return;
     }
 
-    const prompt = {
-      ...transcriptFormatPrompt,
-      userPrompt: transcriptFormatPrompt.userPrompt(title, text)
-    }
+    // Generate a unique ID based on timestamp
+    const timestamp = Date.now();
+    const newId = `conv-${timestamp}`;
 
-    await generateResponse(prompt)
-  }
+    try {
+      await generateResponse({
+        ...transcriptFormatPrompt,
+        userPrompt: transcriptFormatPrompt.userPrompt(title, text)
+      });
+    } catch (error) {
+      console.error('Error formatting transcript:', error);
+    }
+  };
 
   const handleSave = async () => {
     if (!result) return;

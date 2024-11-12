@@ -7,8 +7,13 @@ interface Speaker {
 interface DialogueLine {
   speakerId: string;
   text: string;
-  timestamp?: string;
-  audioUrl?: string;
+  fillers?: FillerLine[];
+}
+
+interface FillerLine {
+  speakerId: string;
+  text: string;
+  category?: string;
 }
 
 interface Transcript {

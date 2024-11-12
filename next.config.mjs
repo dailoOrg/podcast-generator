@@ -1,7 +1,22 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Remove the api config as it's not needed
-  // Instead, we'll use Edge Runtime for the API routes
+  webpack: (config) => {
+    config.module.rules.push({
+      test: /\.(mp3|wav)$/i,
+      use: [
+        {
+          loader: 'file-loader',
+          options: {
+            publicPath: '/_next/static/audio/',
+            outputPath: 'static/audio/',
+            name: '[name].[hash].[ext]',
+            esModule: false,
+          },
+        },
+      ],
+    });
+    return config;
+  },
 };
 
 export default nextConfig;
