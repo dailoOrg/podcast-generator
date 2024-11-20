@@ -1,0 +1,17 @@
+{
+  "id": "conv-1732076325602-wr619",
+  "title": "try-2",
+  "speakers": [
+    {
+      "id": "speaker-1",
+      "name": "alex",
+      "voice": "alloy"
+    }
+  ],
+  "dialogue": [
+    {
+      "speakerId": "speaker-1",
+      "text": "hey!"
+    }
+  ]
+}

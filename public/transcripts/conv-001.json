@@ -28,7 +28,15 @@
     },
     {
       "speakerId": "speaker-2",
-      "text": "Hmm... You know what? I love explaining this with something we all get. Think about how we teach kids to spot animals, right?"
+      "text": "Hmm......................"
+    },
+    {
+      "speakerId": "speaker-1",
+      "text": "Mm-hmm"
+    },
+    {
+      "speakerId": "speaker-2",
+      "text": "You know what? I love explaining this with something we all get. Think about how we teach kids to spot animals, right?"
     },
     {
       "speakerId": "speaker-1",
@@ -60,7 +68,7 @@
     },
     {
       "speakerId": "speaker-2",
-      "text": "But machine learning - and this is what's really cool - it's more like teaching a chef by showing them hundreds of successful dishes and letting them sort of... figure out the patterns themselves."
+      "text": "But machine learning - and this is what's really cool - it's more like teaching a chef by showing them hundreds of successful dishes and letting them sort of......................figure out the patterns themselves."
     },
     {
       "speakerId": "speaker-1",
@@ -84,7 +92,7 @@
     },
     {
       "speakerId": "speaker-2",
-      "text": "Oh yeah! So... think about programming a thermostat, right?"
+      "text": "Oh yeah! So......................think about programming a thermostat, right?"
     },
     {
       "speakerId": "speaker-1",
@@ -132,7 +140,7 @@
     },
     {
       "speakerId": "speaker-2",
-      "text": "The thing is... there are just TOO many variables to program explicitly."
+      "text": "The thing is......................there are just TOO many variables to program explicitly."
     },
     {
       "speakerId": "speaker-1",
@@ -164,7 +172,7 @@
     },
     {
       "speakerId": "speaker-2",
-      "text": "Well... let's talk about financial services - oh man, this is a good one!"
+      "text": "Well......................let's talk about financial services - oh man, this is a good one!"
     },
     {
       "speakerId": "speaker-1",
@@ -196,7 +204,7 @@
     },
     {
       "speakerId": "speaker-2",
-      "text": "Oh! *laughs* Yeah, that's actually a really interesting story. Um..."
+      "text": "Oh! *laughs* Yeah, that's actually a really interesting story. Um......................"
     },
     {
       "speakerId": "speaker-1",
@@ -236,7 +244,7 @@
     },
     {
       "speakerId": "speaker-2",
-      "text": "Exactly! Because, you know, we promised all these amazing things and then... reality hit."
+      "text": "Exactly! Because, you know, we promised all these amazing things and then......................reality hit."
     },
     {
       "speakerId": "speaker-1",
@@ -244,7 +252,7 @@
     },
     {
       "speakerId": "speaker-2",
-      "text": "Oh man, this is where it gets really, really interesting! You know... there were actually THREE big things."
+      "text": "Oh man, this is where it gets really, really interesting! You know......................there were actually THREE big things."
     },
     {
       "speakerId": "speaker-1",
@@ -276,7 +284,7 @@
     },
     {
       "speakerId": "speaker-2",
-      "text": "Well... in the 80s and early 90s, we developed these new algorithms - like backpropagation."
+      "text": "Well......................in the 80s and early 90s, we developed these new algorithms - like backpropagation."
     },
     {
       "speakerId": "speaker-1",
@@ -292,7 +300,7 @@
     },
     {
       "speakerId": "speaker-2",
-      "text": "Think of neural networks like... hmm... imagine this huge web of digital neurons."
+      "text": "Think of neural networks like... hmm......................imagine this huge web of digital neurons."
     },
     {
       "speakerId": "speaker-1",
@@ -324,7 +332,7 @@
     },
     {
       "speakerId": "speaker-2",
-      "text": "Okay, so picture this... you've got all these sensors - cameras, radar, lidar..."
+      "text": "Okay, so picture this......................you've got all these sensors - cameras, radar, lidar..."
     },
     {
       "speakerId": "speaker-1",
@@ -388,7 +396,7 @@
     },
     {
       "speakerId": "speaker-2",
-      "text": "YES! But - and this is where companies get super creative..."
+      "text": "YES! But - and this is where companies get super creative......................"
     },
     {
       "speakerId": "speaker-1",
@@ -424,7 +432,7 @@
     },
     {
       "speakerId": "speaker-2",
-      "text": "So... instead of collecting real-world data, companies are actually creating artificial data."
+      "text": "So......................instead of collecting real-world data, companies are actually creating artificial data."
     },
     {
       "speakerId": "speaker-1",
@@ -456,7 +464,7 @@
     },
     {
       "speakerId": "speaker-2",
-      "text": "But then we get into privacy concerns, and that's... well..."
+      "text": "But then we get into privacy concerns, and that's... well......................"
     },
     {
       "speakerId": "speaker-1",
@@ -480,7 +488,7 @@
     },
     {
       "speakerId": "speaker-2",
-      "text": "So... your phone is learning from YOUR typing patterns, but - and this is the clever part -"
+      "text": "So......................your phone is learning from YOUR typing patterns, but - and this is the clever part -"
     },
     {
       "speakerId": "speaker-1",
@@ -496,7 +504,7 @@
     },
     {
       "speakerId": "speaker-2",
-      "text": "Hmm... you know, there are several really exciting directions."
+      "text": "Hmm......................you know, there are several really exciting directions."
     },
     {
       "speakerId": "speaker-1",
@@ -512,7 +520,7 @@
     },
     {
       "speakerId": "speaker-2",
-      "text": "Right! So - um, let me phrase this better..."
+      "text": "Right! So - um, let me phrase this better......................"
     },
     {
       "speakerId": "speaker-1",
@@ -536,7 +544,7 @@
     },
     {
       "speakerId": "speaker-2",
-      "text": "Think about it - if an AI system denies you a loan..."
+      "text": "Think about it - if an AI system denies you a loan......................"
     },
     {
       "speakerId": "speaker-1",
@@ -560,7 +568,7 @@
     },
     {
       "speakerId": "speaker-2",
-      "text": "Oh man *deep breath* ... this is probably our biggest challenge."
+      "text": "Oh man *deep breath* ......................this is probably our biggest challenge."
     },
     {
       "speakerId": "speaker-1",
@@ -576,7 +584,7 @@
     },
     {
       "speakerId": "speaker-2",
-      "text": "Well... take facial recognition systems. They've shown lower accuracy rates for certain groups, and that's just... it's NOT acceptable."
+      "text": "Well......................take facial recognition systems. They've shown lower accuracy rates for certain groups, and that's just... it's NOT acceptable."
     },
     {
       "speakerId": "speaker-1",
@@ -608,7 +616,7 @@
     },
     {
       "speakerId": "speaker-2",
-      "text": "You know what? This is something I think about ALL the time..."
+      "text": "You know what? This is something I think about ALL the time......................"
     },
     {
       "speakerId": "speaker-1",
@@ -632,7 +640,7 @@
     },
     {
       "speakerId": "speaker-2",
-      "text": "Because, you know, if everyone on your team has the same background, the same experiences..."
+      "text": "Because, you know, if everyone on your team has the same background, the same experiences......................"
     },
     {
       "speakerId": "speaker-1",
@@ -688,7 +696,7 @@
     },
     {
       "speakerId": "speaker-2",
-      "text": "Oh! *excited laugh* ... yes! Actually, this is really important."
+      "text": "Oh! *excited laugh* ......................yes! Actually, this is really important."
     },
     {
       "speakerId": "speaker-1",
@@ -736,7 +744,7 @@
     },
     {
       "speakerId": "speaker-2",
-      "text": "Exactly! It's like... the future belongs to people who can bridge these different worlds."
+      "text": "Exactly! It's like......................the future belongs to people who can bridge these different worlds."
     },
     {
       "speakerId": "speaker-1",

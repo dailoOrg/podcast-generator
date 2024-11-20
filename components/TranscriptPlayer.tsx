@@ -34,6 +34,7 @@ export default function TranscriptPlayer() {
         const response = await fetch('/api/transcripts');
         if (!response.ok) throw new Error('Failed to load transcripts');
         const data = await response.json();
+        console.log('Available transcripts:', data);
         setTranscripts(data);
       } catch (error) {
         console.error('Error loading transcripts:', error);
@@ -41,26 +42,27 @@ export default function TranscriptPlayer() {
         setLoading(false);
       }
     };
-
+  
     loadTranscripts();
   }, []);
 
   const checkExistingFiles = async () => {
     const fileNames = selectedTranscript.dialogue.map((line, index) => {
       const speaker = selectedTranscript.speakers.find(s => s.id === line.speakerId);
+      // Keep the filename format consistent
       return `${selectedTranscript.id}_${speaker?.id}_${index}.mp3`;
     });
-
+  
     const response = await fetch('/api/check-audio', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ fileNames }),
     });
-
+  
     if (!response.ok) {
       throw new Error('Failed to check existing files');
     }
-
+  
     const { files } = await response.json();
     return files as AudioFileCheck[];
   };
@@ -68,57 +70,54 @@ export default function TranscriptPlayer() {
   const generateAndSaveAudio = async (missingFiles: string[]) => {
     setProcessing(true);
     const files: AudioFile[] = [];
-
+  
     try {
       for (let i = 0; i < selectedTranscript.dialogue.length; i++) {
-        const fileName = `${selectedTranscript.id}_${selectedTranscript.dialogue[i].speakerId}_${i}.mp3`;
+        const line = selectedTranscript.dialogue[i];
+        const speaker = selectedTranscript.speakers.find(s => s.id === line.speakerId);
+        const fileName = `${selectedTranscript.id}_${speaker?.id}_${i}.mp3`;
         
         if (!missingFiles.includes(fileName)) {
-          // File exists, just add it to the list
           files.push({
-            speakerId: selectedTranscript.dialogue[i].speakerId,
+            speakerId: line.speakerId,
             path: `/audio/${fileName}`
           });
           continue;
         }
-
-        const line = selectedTranscript.dialogue[i];
-        const speaker = selectedTranscript.speakers.find(s => s.id === line.speakerId);
         
-        // Generate speech for missing file
+        // Generate speech
         const response = await fetch('/api/text-to-speech', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             text: line.text,
-            voice: speaker?.voice
+            voice: speaker?.voice || 'alloy' // Provide default voice
           }),
         });
-
+  
         if (!response.ok) {
           throw new Error(`Failed to generate speech for line ${i + 1}`);
         }
-
+  
         const audioBlob = await response.blob();
-        const audioFile = new File([audioBlob], fileName, { type: 'audio/mpeg' });
-
-        // Save file
         const formData = new FormData();
-        formData.append('file', audioFile);
-
+        formData.append('audio', audioBlob, fileName);
+        formData.append('transcriptId', selectedTranscript.id);
+  
         const saveResponse = await fetch('/api/save-audio', {
           method: 'POST',
-          body: formData,
+          body: formData
         });
-
+  
         if (!saveResponse.ok) {
-          throw new Error(`Failed to save audio file ${fileName}`);
+          const errorText = await saveResponse.text();
+          throw new Error(`Failed to save audio file ${fileName}: ${errorText}`);
         }
-
+  
         const { path } = await saveResponse.json();
         files.push({ speakerId: line.speakerId, path });
       }
-
+      
       setAudioFiles(files);
     } catch (error) {
       console.error('Error processing audio:', error);
@@ -127,27 +126,36 @@ export default function TranscriptPlayer() {
     }
   };
 
+  
+  const handleTranscriptSelect = async (value: string) => {
+    try {
+      console.log('Selected transcript ID:', value);
+      const response = await fetch(`/api/transcripts/${value}`);
+      if (!response.ok) throw new Error('Failed to load transcript');
+      const transcript = await response.json();
+      console.log('Loaded transcript:', transcript);
+      setSelectedTranscript(transcript);
+      // Reset states
+      setCurrentIndex(0);
+      setAudioFiles([]);
+      setMergedAudioPath(null);
+    } catch (error) {
+      console.error('Error loading transcript:', error);
+    }
+  };
+  
   const initializeAudio = async () => {
     try {
+      console.log('Initializing audio for transcript:', selectedTranscript?.id);
       setProcessing(true);
       const existingFiles = await checkExistingFiles();
-      
+      console.log('Existing audio files:', existingFiles);
       const missingFiles = existingFiles
-        .filter(file => !file.exists)
-        .map(file => file.fileName);
-
-      if (missingFiles.length > 0) {
-        await generateAndSaveAudio(missingFiles);
-      } else {
-        // All files exist, just set the paths
-        const files = existingFiles.map(file => ({
-          speakerId: selectedTranscript.dialogue[existingFiles.indexOf(file)].speakerId,
-          path: file.path
-        }));
-        setAudioFiles(files);
-      }
+        .filter(f => !f.exists)
+        .map(f => f.fileName);
+      await generateAndSaveAudio(missingFiles);
     } catch (error) {
-      console.error('Error initializing audio:', error);
+      console.error('Error processing audio:', error);
     } finally {
       setProcessing(false);
     }
@@ -215,20 +223,7 @@ export default function TranscriptPlayer() {
     }
   };
 
-  const handleTranscriptSelect = async (value: string) => {
-    try {
-      const response = await fetch(`/api/transcripts/${value}`);
-      if (!response.ok) throw new Error('Failed to load transcript');
-      const transcript = await response.json();
-      setSelectedTranscript(transcript);
-      // Reset states
-      setCurrentIndex(0);
-      setAudioFiles([]);
-      setMergedAudioPath(null);
-    } catch (error) {
-      console.error('Error loading transcript:', error);
-    }
-  };
+  
 
   return (
     <Card className="w-full max-w-2xl">
