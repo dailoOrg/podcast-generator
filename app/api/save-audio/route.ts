@@ -1,41 +1,39 @@
+import { writeFile, mkdir } from 'fs/promises';
 import { NextResponse } from 'next/server';
-import { writeFile } from 'fs/promises';
-import { join } from 'path';
-import { mkdir } from 'fs/promises';
+import path from 'path';
+import { existsSync } from 'fs';
 
-export async function POST(request: Request) {
+export async function POST(req: Request) {
   try {
-    const formData = await request.formData();
-    const file = formData.get('file') as File;
+    const data = await req.formData();
+    const file: File | null = data.get('file') as unknown as File;
     
     if (!file) {
-      return NextResponse.json({ error: 'No file provided' }, { status: 400 });
+      return NextResponse.json({ error: 'No file received' }, { status: 400 });
     }
 
-    // Ensure the audio directory exists
-    const audioDir = join(process.cwd(), 'public', 'audio');
-    await mkdir(audioDir, { recursive: true });
-
-    // Convert File to Buffer
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
-    // Save the file
-    const filePath = join(audioDir, file.name);
-    await writeFile(filePath, buffer);
+    // Ensure audio directory exists
+    const audioDir = path.join(process.cwd(), 'public', 'audio');
+    if (!existsSync(audioDir)) {
+      await mkdir(audioDir, { recursive: true });
+    }
+
+    // Save file to public/audio directory
+    const filename = file.name;
+    const filepath = path.join(audioDir, filename);
+    await writeFile(filepath, buffer);
+
+    console.log(`File saved successfully at: ${filepath}`);
 
     return NextResponse.json({ 
-      path: `/audio/${file.name}`,
-      message: 'File saved successfully' 
+      success: true, 
+      path: `/audio/${filename}` 
     });
   } catch (error) {
-    console.error('Error saving audio file:', error);
+    console.error('Error saving file:', error);
     return NextResponse.json({ error: 'Failed to save file' }, { status: 500 });
   }
-}
-
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-}; 
+} 
