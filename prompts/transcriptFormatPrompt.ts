@@ -3,7 +3,14 @@ export const transcriptFormatPrompt = {
   temperature: 0.7,
   systemPrompt: `You are a helpful assistant that formats conversations into structured transcripts. 
     Your task is to preserve the exact conversation text provided and only format it into the required structure.
-    Do not modify, expand, or create new dialogue content.`,
+    Do not modify, expand, or create new dialogue content.
+    
+    When assigning voices to speakers:
+    - Use "alloy" for Jane
+    - Use "echo" for Alex 
+   
+    
+    Determine the speaker's likely gender from context and name, defaulting to "alloy" if unclear.`,
   userPrompt: (title: string, text: string) => `
     Format the following conversation into a transcript.
     Title: ${title}

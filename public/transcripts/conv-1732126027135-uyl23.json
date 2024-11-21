@@ -1,0 +1,98 @@
+{
+  "id": "conv-1732126027135-uyl23",
+  "title": "test: emotional responses",
+  "speakers": [
+    {
+      "id": "speaker-1",
+      "name": "Alex",
+      "voice": "alloy"
+    },
+    {
+      "id": "speaker-2",
+      "name": "Taylor",
+      "voice": "echo"
+    }
+  ],
+  "dialogue": [
+    {
+      "speakerId": "speaker-1",
+      "text": "Yeah, yeah."
+    },
+    {
+      "speakerId": "speaker-2",
+      "text": "(Laughs)"
+    },
+    {
+      "speakerId": "speaker-1",
+      "text": "Uh-huh, uh-huh."
+    },
+    {
+      "speakerId": "speaker-2",
+      "text": "Hmm, interesting."
+    },
+    {
+      "speakerId": "speaker-1",
+      "text": "Whoa!"
+    },
+    {
+      "speakerId": "speaker-2",
+      "text": "Really?!"
+    },
+    {
+      "speakerId": "speaker-1",
+      "text": "Oh no!"
+    },
+    {
+      "speakerId": "speaker-2",
+      "text": "Hmm…"
+    },
+    {
+      "speakerId": "speaker-1",
+      "text": "Haha, that’s funny."
+    },
+    {
+      "speakerId": "speaker-2",
+      "text": "Wow, wow, wow."
+    },
+    {
+      "speakerId": "speaker-1",
+      "text": "Aww!"
+    },
+    {
+      "speakerId": "speaker-2",
+      "text": "Hmm?"
+    },
+    {
+      "speakerId": "speaker-1",
+      "text": "Oh, come on!"
+    },
+    {
+      "speakerId": "speaker-2",
+      "text": "Okay, okay, okay."
+    },
+    {
+      "speakerId": "speaker-1",
+      "text": "Oops!"
+    },
+    {
+      "speakerId": "speaker-2",
+      "text": "Ohhh…"
+    },
+    {
+      "speakerId": "speaker-1",
+      "text": "No way!"
+    },
+    {
+      "speakerId": "speaker-2",
+      "text": "Ah, got it."
+    },
+    {
+      "speakerId": "speaker-1",
+      "text": "What?!"
+    },
+    {
+      "speakerId": "speaker-2",
+      "text": "Hmm… right."
+    }
+  ]
+}
