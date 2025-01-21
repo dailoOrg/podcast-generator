@@ -71,7 +71,7 @@ export const lowVolumeExpressions = [
 ];
 ```
 
-## Usage
+## Usage 
 
 1. Format your transcript using the Transcript Formatter
 2. Select your transcript in the Transcript Player
@@ -80,10 +80,3 @@ export const lowVolumeExpressions = [
 5. Play sequence or merge audio for final output
 6. Download the merged conversation
 
-## Contributing
-
-Contributions are welcome! Please read our contributing guidelines for details.
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
