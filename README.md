@@ -1,55 +1,89 @@
-# Dailo Podcast Generator
+# Podcast Generator
 
-Transform your ideas into engaging podcast-style conversations using AI voices. Dailo helps you create, format, and generate natural-sounding dialogues with multiple AI voices.
+An AI-powered platform for creating podcast-style conversations from transcripts.
 
 ## Features
 
-- 📝 Format raw text into structured dialogues
-- 🎤 Convert text to natural AI voices
-- 🎧 Generate complete podcast episodes
-- 📚 Manage your podcast library
-- 🔄 Easy-to-use interface for content creation
+- Text-to-speech generation for multiple speakers
+- Smart volume control for natural conversation flow
+- Automatic volume adjustment for reactions and acknowledgments
+- Individual audio file generation and merging
+- Download merged conversations as WAV files
 
-## Tech Stack
+## Setup
 
-- [Next.js 14](https://nextjs.org/) for the modern web framework
-- [OpenAI API](https://platform.openai.com/docs/api-reference) for AI voices
-- [TypeScript](https://www.typescriptlang.org/) for type safety
-- [Tailwind CSS](https://tailwindcss.com/) for styling
-- [Shadcn/ui](https://ui.shadcn.com/) for UI components
+1. Clone the repository:
 
-## Getting Started
+```bash
+git clone https://github.com/your-username/podcast-generator.git
+cd podcast-generator
+```
 
-1. Clone the repository
 2. Install dependencies:
 
 ```bash
 npm install
-# or
-yarn install
 ```
 
-3. Set up your environment variables in `.env.local`:
+3. Create a `.env` file based on `.env.example`:
 
 ```bash
-OPENAI_API_KEY=your_api_key_here
+cp .env.example .env
 ```
 
-4. Run the development server:
+4. Add your OpenAI API key to `.env`:
+
+```
+OPENAI_API_KEY=your-api-key-here
+```
+
+5. Run the development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
+```
+
+## Smart Volume Control
+
+The application includes intelligent volume control for more natural-sounding conversations:
+
+- Automatically detects and lowers volume for:
+  - Short reactions (1-2 words)
+  - Common acknowledgments ("yeah", "mhm", etc.)
+  - Brief interjections
+
+### Customizing Volume Control
+
+You can customize which phrases trigger volume reduction by editing `utils/dialogueUtils.ts`. The file contains:
+
+- `lowVolumeExpressions`: Array of words/phrases that trigger volume reduction
+- `shouldLowerVolume()`: Logic for determining when to lower volume
+
+Example:
+
+```typescript
+// in dialogueUtils.ts
+export const lowVolumeExpressions = [
+  "yeah",
+  "mhm",
+  "okay",
+  // Add your own expressions here
+];
 ```
 
 ## Usage
 
-1. Create a new conversation script
-2. Format it using the transcript formatter
-3. Generate AI voices for each speaker
-4. Download your podcast episode
+1. Format your transcript using the Transcript Formatter
+2. Select your transcript in the Transcript Player
+3. Enable Smart Volume Control if desired
+4. Initialize audio to generate speech
+5. Play sequence or merge audio for final output
+6. Download the merged conversation
+
+## Contributing
+
+Contributions are welcome! Please read our contributing guidelines for details.
 
 ## License
 
-[MIT License](LICENSE)
+This project is licensed under the MIT License - see the LICENSE file for details.
