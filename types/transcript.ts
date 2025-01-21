@@ -1,19 +1,18 @@
-interface Speaker {
+export interface Speaker {
   id: string;
   name: string;
-  voice: "alloy" | "echo" | "fable" | "onyx" | "nova" | "shimmer";
+  voice: string;
 }
 
-interface DialogueLine {
+export interface DialogueLine {
   speakerId: string;
   text: string;
-  timestamp?: string;
-  audioUrl?: string;
+  id: string;
 }
 
-interface Transcript {
+export interface Transcript {
   id: string;
   title: string;
   speakers: Speaker[];
   dialogue: DialogueLine[];
-} 
+}

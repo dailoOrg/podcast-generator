@@ -1,15 +1,52 @@
-export async function mergeAudioFiles(audioUrls: string[]): Promise<Blob> {
-  const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+import { shouldLowerVolume } from "./dialogueUtils";
+
+export const mergeAudioFiles = async (
+  audioUrls: string[],
+  dialogue: Array<{ text: string }>,
+  smartVolumeEnabled: boolean = false
+) => {
+  const audioContext = new AudioContext();
   const audioBuffers = await Promise.all(
-    audioUrls.map(async (url) => {
+    audioUrls.map(async (url, index) => {
       const response = await fetch(url);
       const arrayBuffer = await response.arrayBuffer();
-      return await audioContext.decodeAudioData(arrayBuffer);
+      const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+
+      // Only adjust volume if smart volume is enabled
+      if (
+        smartVolumeEnabled &&
+        dialogue[index] &&
+        shouldLowerVolume(dialogue[index].text)
+      ) {
+        const newBuffer = audioContext.createBuffer(
+          audioBuffer.numberOfChannels,
+          audioBuffer.length,
+          audioBuffer.sampleRate
+        );
+
+        for (
+          let channel = 0;
+          channel < audioBuffer.numberOfChannels;
+          channel++
+        ) {
+          const channelData = audioBuffer.getChannelData(channel);
+          const newChannelData = newBuffer.getChannelData(channel);
+          for (let i = 0; i < channelData.length; i++) {
+            newChannelData[i] = channelData[i] * 0.15;
+          }
+        }
+        return newBuffer;
+      }
+
+      return audioBuffer;
     })
   );
 
   // Calculate total duration
-  const totalLength = audioBuffers.reduce((acc, buffer) => acc + buffer.length, 0);
+  const totalLength = audioBuffers.reduce(
+    (acc, buffer) => acc + buffer.length,
+    0
+  );
   const numberOfChannels = audioBuffers[0].numberOfChannels;
   const sampleRate = audioBuffers[0].sampleRate;
 
@@ -54,34 +91,45 @@ export async function mergeAudioFiles(audioUrls: string[]): Promise<Blob> {
     }
 
     const interleaved = interleaveChannels(channels, renderedBuffer.length);
-    const dataView = encodeWAV(interleaved, renderedBuffer.numberOfChannels, renderedBuffer.sampleRate);
-    const audioBlob = new Blob([dataView], { type: 'audio/wav' });
+    const dataView = encodeWAV(
+      interleaved,
+      renderedBuffer.numberOfChannels,
+      renderedBuffer.sampleRate
+    );
+    const audioBlob = new Blob([dataView], { type: "audio/wav" });
     resolve(audioBlob);
   });
 
   return wavBlob;
-}
+};
 
-function interleaveChannels(channels: Float32Array[], frameCount: number): Float32Array {
+function interleaveChannels(
+  channels: Float32Array[],
+  frameCount: number
+): Float32Array {
   const interleaved = new Float32Array(frameCount * channels.length);
-  
+
   for (let i = 0; i < frameCount; i++) {
     for (let channel = 0; channel < channels.length; channel++) {
       interleaved[i * channels.length + channel] = channels[channel][i];
     }
   }
-  
+
   return interleaved;
 }
 
-function encodeWAV(samples: Float32Array, numChannels: number, sampleRate: number): DataView {
+function encodeWAV(
+  samples: Float32Array,
+  numChannels: number,
+  sampleRate: number
+): DataView {
   const buffer = new ArrayBuffer(44 + samples.length * 2);
   const view = new DataView(buffer);
 
-  writeString(view, 0, 'RIFF');
+  writeString(view, 0, "RIFF");
   view.setUint32(4, 36 + samples.length * 2, true);
-  writeString(view, 8, 'WAVE');
-  writeString(view, 12, 'fmt ');
+  writeString(view, 8, "WAVE");
+  writeString(view, 12, "fmt ");
   view.setUint32(16, 16, true);
   view.setUint16(20, 1, true);
   view.setUint16(22, numChannels, true);
@@ -89,7 +137,7 @@ function encodeWAV(samples: Float32Array, numChannels: number, sampleRate: numbe
   view.setUint32(28, sampleRate * numChannels * 2, true);
   view.setUint16(32, numChannels * 2, true);
   view.setUint16(34, 16, true);
-  writeString(view, 36, 'data');
+  writeString(view, 36, "data");
   view.setUint32(40, samples.length * 2, true);
 
   floatTo16BitPCM(view, 44, samples);
@@ -103,9 +151,13 @@ function writeString(view: DataView, offset: number, string: string): void {
   }
 }
 
-function floatTo16BitPCM(view: DataView, offset: number, input: Float32Array): void {
+function floatTo16BitPCM(
+  view: DataView,
+  offset: number,
+  input: Float32Array
+): void {
   for (let i = 0; i < input.length; i++, offset += 2) {
     const s = Math.max(-1, Math.min(1, input[i]));
-    view.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7FFF, true);
+    view.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7fff, true);
   }
-} 
+}
