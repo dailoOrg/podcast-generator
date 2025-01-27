@@ -1,4 +1,4 @@
-import { useState, ChangeEvent } from 'react'
+import { useState, ChangeEvent, useEffect } from 'react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -13,34 +13,82 @@ export default function TranscriptFormatter() {
   const [text, setText] = useState('')
   const [saveMessage, setSaveMessage] = useState('')
   const { result, loading, error, generateResponse } = useOpenAI<Transcript>()
+  const [existingIds, setExistingIds] = useState<string[]>([]);
+
+  useEffect(() => {
+    const fetchExistingIds = async () => {
+      try {
+        const response = await fetch('/api/transcripts');
+        if (!response.ok) throw new Error('Failed to fetch transcripts');
+        const transcripts = await response.json();
+        const ids = transcripts.map((t: Transcript) => t.id);
+        setExistingIds(ids);
+      } catch (error) {
+        console.error('Error fetching existing transcript IDs:', error);
+      }
+    };
+  
+    fetchExistingIds();
+  }, []);
+
+  const generateUniqueId = () => {
+    let newId;
+    do {
+      const timestamp = Date.now();
+      const random = Math.random().toString(36).substring(2, 7);
+      newId = `conv-${timestamp}-${random}`;
+    } while (existingIds.includes(newId));
+    return newId;
+  };
 
   const formatTranscript = async () => {
     if (!title.trim() || !text.trim()) {
-      return
+      return;
     }
-
-    const prompt = {
-      ...transcriptFormatPrompt,
-      userPrompt: transcriptFormatPrompt.userPrompt(title, text)
+  
+    try {
+      const response = await generateResponse({
+        ...transcriptFormatPrompt,
+        userPrompt: transcriptFormatPrompt.userPrompt(title, text)
+      });
+  
+      if (response) {
+        // Let handleSave manage the ID generation when saving
+        return {
+          ...response,
+          title: title
+        };
+      }
+    } catch (error) {
+      console.error('Error formatting transcript:', error);
     }
-
-    await generateResponse(prompt)
-  }
-
+  };
+  
+  
   const handleSave = async () => {
     if (!result) return;
     
     try {
+      const uniqueId = generateUniqueId();
+      const transcriptToSave = {
+        ...result,
+        id: uniqueId
+      };
+  
       const response = await fetch('/api/transcripts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(result)
+        body: JSON.stringify(transcriptToSave)
       });
-
+  
       if (!response.ok) {
         throw new Error('Failed to save transcript');
       }
-
+  
+      // Update existingIds with the new ID
+      setExistingIds(prev => [...prev, uniqueId]);
+      
+      console.log('Saved transcript:', transcriptToSave);
       setSaveMessage('Transcript saved successfully!');
       setTimeout(() => setSaveMessage(''), 3000);
     } catch (err) {

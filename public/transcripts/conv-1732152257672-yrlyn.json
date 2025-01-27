@@ -1,0 +1,26 @@
+{
+  "id": "conv-1732152257672-yrlyn",
+  "title": "voice test",
+  "speakers": [
+    {
+      "id": "speaker-1",
+      "name": "Alex",
+      "voice": "echo"
+    },
+    {
+      "id": "speaker-2",
+      "name": "Jane",
+      "voice": "alloy"
+    }
+  ],
+  "dialogue": [
+    {
+      "speakerId": "speaker-1",
+      "text": "hey! how are you doing"
+    },
+    {
+      "speakerId": "speaker-2",
+      "text": "hey! im doing fine"
+    }
+  ]
+}

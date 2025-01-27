@@ -1,0 +1,21 @@
+{
+  "id": "conv-1737434769588-gnyk1",
+  "title": "switch_test_3",
+  "speakers": [
+    {
+      "id": "speaker-1",
+      "name": "Alex",
+      "voice": "echo"
+    }
+  ],
+  "dialogue": [
+    {
+      "speakerId": "speaker-1",
+      "text": "Oh"
+    },
+    {
+      "speakerId": "speaker-1",
+      "text": "Oh"
+    }
+  ]
+}

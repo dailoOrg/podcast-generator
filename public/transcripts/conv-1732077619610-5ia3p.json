@@ -1,16 +1,16 @@
 {
-  "id": "conv-001",
-  "title": "Anthropic 1",
+  "id": "conv-1732077619610-5ia3p",
+  "title": "Anthropic v1",
   "speakers": [
     {
       "id": "speaker-1",
       "name": "Alex",
-      "voice": "onyx"
+      "voice": "alloy"
     },
     {
       "id": "speaker-2",
       "name": "Dr. Jane",
-      "voice": "nova"
+      "voice": "shimmer"
     }
   ],
   "dialogue": [
