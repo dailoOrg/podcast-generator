@@ -1,7 +1,7 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem, SelectGroup, SelectLabel, SelectSeparator } from "@/components/ui/select";
 import { transcriptStorage } from '@/utils/transcriptStorage';
 import type { Transcript, DialogueLine } from '@/types/transcript';
 import { mergeAudioFiles } from '@/utils/audioMerger';
@@ -36,6 +36,18 @@ interface ExtraLoweredLine {
   text: string;
 }
 
+interface TTSModel {
+  id: string;
+  name: string;
+  provider: 'openai' | 'elevenlabs';
+  gender: 'male' | 'female' | 'neutral';
+}
+
+interface SpeakerTTSSelection {
+  speakerId: string;
+  modelId: string;
+}
+
 export default function TranscriptPlayer() {
   const [processing, setProcessing] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -52,6 +64,18 @@ export default function TranscriptPlayer() {
   const [extraLoweredLines, setExtraLoweredLines] = useState<ExtraLoweredLine[]>([]);
   const [lastRemovedLineId, setLastRemovedLineId] = useState<string | null>(null);
   const [tooltipOpen, setTooltipOpen] = useState(false);
+  const [speakerTTSSelections, setSpeakerTTSSelections] = useState<SpeakerTTSSelection[]>([]);
+
+  const availableTTSModels: TTSModel[] = [
+    { id: 'alloy', name: 'OpenAI Alloy', provider: 'openai', gender: 'neutral' }, // Original Jane
+    { id: 'echo', name: 'OpenAI Echo', provider: 'openai', gender: 'male' }, // Original alex
+    { id: 'fable', name: 'OpenAI Fable', provider: 'openai', gender: 'female' },
+    { id: 'onyx', name: 'OpenAI Onyx', provider: 'openai', gender: 'male' },
+    { id: 'nova', name: 'OpenAI Nova', provider: 'openai', gender: 'female' },
+    { id: 'shimmer', name: 'OpenAI Shimmer', provider: 'openai', gender: 'female' },
+    { id: 'eleven-multilingual', name: 'ElevenLabs Bill Oxley', provider: 'elevenlabs', gender: 'male' },
+    { id: 'eleven-flash', name: 'ElevenLabs Rachel', provider: 'elevenlabs', gender: 'female' },
+  ];
 
   useEffect(() => {
     const loadTranscripts = async () => {
@@ -113,13 +137,23 @@ export default function TranscriptPlayer() {
           continue;
         }
 
-        // Generate speech
+        // Get the selected TTS model for this speaker
+        const speakerTTSModel = speakerTTSSelections.find(
+          sel => sel.speakerId === line.speakerId
+        );
+        const selectedModel = availableTTSModels.find(
+          model => model.id === speakerTTSModel?.modelId
+        );
+
+        // Generate speech with the selected model
         const response = await fetch('/api/text-to-speech', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             text: line.text,
-            voice: speaker?.voice || 'alloy' // Provide default voice
+            voice: selectedModel?.gender || 'neutral',
+            model: selectedModel?.provider || 'openai',
+            modelId: selectedModel?.id || 'alloy'
           }),
         });
 
@@ -180,6 +214,7 @@ export default function TranscriptPlayer() {
       setLastRemovedLineId(null); // Reset last removed line
       setExcludedLines([]); // Reset excluded lines
       setExtraLoweredLines([]); // Reset extra lowered lines
+      setSpeakerTTSSelections([]); // Reset TTS selections
     } catch (error) {
       console.error('Error loading transcript:', error);
     }
@@ -295,6 +330,13 @@ export default function TranscriptPlayer() {
     }
   };
 
+  const handleTTSModelChange = (speakerId: string, modelId: string) => {
+    setSpeakerTTSSelections(prev => {
+      const filtered = prev.filter(sel => sel.speakerId !== speakerId);
+      return [...filtered, { speakerId, modelId }];
+    });
+  };
+
   return (
     <Card className="w-full max-w-2xl">
       <CardHeader>
@@ -325,55 +367,105 @@ export default function TranscriptPlayer() {
 
         {selectedTranscript && (
           <>
-            <div className="flex items-center gap-4">
-              <Button
-                onClick={initializeAudio}
-                disabled={processing}
-              >
-                {processing ? 'Processing...' : isInitialized ? 'Restart Audio' : 'Initialize Audio'}
-              </Button>
+            <div className="flex flex-col gap-4">
+              <div className="flex items-center gap-4">
+                <Button
+                  onClick={initializeAudio}
+                  disabled={processing}
+                >
+                  {processing ? 'Processing...' : isInitialized ? 'Restart Audio' : 'Initialize Audio'}
+                </Button>
 
-              <div className="flex items-center space-x-2">
-                <Switch
-                  id="smart-volume"
-                  checked={smartVolumeEnabled}
-                  onCheckedChange={(checked) => {
-                    setSmartVolumeEnabled(checked);
-                    if (isInitialized) {
-                      // Automatically reinitialize when toggling after initialization
-                      initializeAudio();
-                    }
-                  }}
-                />
-                <Label htmlFor="smart-volume" className="flex items-center gap-2">
-                  Smart Volume Control
-                  <Tooltip open={tooltipOpen} onOpenChange={setTooltipOpen}>
-                    <TooltipTrigger
-                      className="text-xs text-blue-500 hover:underline cursor-pointer ml-2"
-                      onClick={() => setTooltipOpen(true)}
-                    >
-                      (more info)
-                    </TooltipTrigger>
-                    <TooltipContent className="w-80 p-3">
-                      <p className="mb-2">Automatically lowers volume for:</p>
-                      <ul className="list-disc pl-4 space-y-1 text-sm">
-                        <li>Short reactions (1-2 words)</li>
-                        <li>Common acknowledgments</li>
-                        <li>Current expressions detected:</li>
-                      </ul>
-                      <div className="mt-2 flex flex-wrap gap-1">
-                        {lowVolumeExpressions.map((expr) => (
-                          <span key={expr} className="text-xs bg-gray-100 px-2 py-1 rounded">
-                            {expr}
-                          </span>
-                        ))}
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    id="smart-volume"
+                    checked={smartVolumeEnabled}
+                    onCheckedChange={(checked) => {
+                      setSmartVolumeEnabled(checked);
+                      if (isInitialized) {
+                        // Automatically reinitialize when toggling after initialization
+                        initializeAudio();
+                      }
+                    }}
+                  />
+                  <Label htmlFor="smart-volume" className="flex items-center gap-2">
+                    Smart Volume Control
+                    <Tooltip open={tooltipOpen} onOpenChange={setTooltipOpen}>
+                      <TooltipTrigger
+                        className="text-xs text-blue-500 hover:underline cursor-pointer ml-2"
+                        onClick={() => setTooltipOpen(true)}
+                      >
+                        (more info)
+                      </TooltipTrigger>
+                      <TooltipContent className="w-80 p-3">
+                        <p className="mb-2">Automatically lowers volume for:</p>
+                        <ul className="list-disc pl-4 space-y-1 text-sm">
+                          <li>Short reactions (1-2 words)</li>
+                          <li>Common acknowledgments</li>
+                          <li>Current expressions detected:</li>
+                        </ul>
+                        <div className="mt-2 flex flex-wrap gap-1">
+                          {lowVolumeExpressions.map((expr) => (
+                            <span key={expr} className="text-xs bg-gray-100 px-2 py-1 rounded">
+                              {expr}
+                            </span>
+                          ))}
+                        </div>
+                        <p className="mt-2 text-xs text-gray-500">
+                          Edit these in dialogueUtils.ts
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </Label>
+                </div>
+              </div>
+
+              <div className="space-y-3 border rounded-lg p-4">
+                <h3 className="font-medium">Speaker Voice Settings</h3>
+                <div className="space-y-2">
+                  {selectedTranscript.speakers.map(speaker => {
+                    const currentSelection = speakerTTSSelections.find(
+                      sel => sel.speakerId === speaker.id
+                    )?.modelId || 'alloy';
+
+                    return (
+                      <div key={speaker.id} className="flex items-center gap-2">
+                        <span className="w-24">{speaker.name}:</span>
+                        <Select
+                          value={currentSelection}
+                          onValueChange={(value) => handleTTSModelChange(speaker.id, value)}
+                        >
+                          <SelectTrigger className="w-[280px]">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectGroup>
+                              <SelectLabel>OpenAI Voices</SelectLabel>
+                              {availableTTSModels
+                                .filter(model => model.provider === 'openai')
+                                .map(model => (
+                                  <SelectItem key={model.id} value={model.id}>
+                                    {model.name} ({model.gender})
+                                  </SelectItem>
+                                ))}
+                            </SelectGroup>
+                            <SelectSeparator />
+                            <SelectGroup>
+                              <SelectLabel>ElevenLabs Voices</SelectLabel>
+                              {availableTTSModels
+                                .filter(model => model.provider === 'elevenlabs')
+                                .map(model => (
+                                  <SelectItem key={model.id} value={model.id}>
+                                    {model.name} ({model.gender})
+                                  </SelectItem>
+                                ))}
+                            </SelectGroup>
+                          </SelectContent>
+                        </Select>
                       </div>
-                      <p className="mt-2 text-xs text-gray-500">
-                        Edit these in dialogueUtils.ts
-                      </p>
-                    </TooltipContent>
-                  </Tooltip>
-                </Label>
+                    );
+                  })}
+                </div>
               </div>
             </div>
 
