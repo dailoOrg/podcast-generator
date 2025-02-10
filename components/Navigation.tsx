@@ -12,6 +12,9 @@ export default function Navigation() {
               </Link>
             </div>
             <div className="flex items-center space-x-4">
+              <Link href="/create" className="text-gray-600 hover:text-blue-600">
+                Generate Transcript
+              </Link>
               <Link href="/transcript-formatter" className="text-gray-600 hover:text-gray-900">
                 Transcript Formatter
               </Link>

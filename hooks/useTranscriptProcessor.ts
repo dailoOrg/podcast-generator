@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Transcript } from '../types/transcript';
 
 export function useTranscriptProcessor() {
   const [processing, setProcessing] = useState(false);
