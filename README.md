@@ -13,6 +13,19 @@ An AI-powered platform for creating podcast-style conversations from transcripts
 - Individual audio file generation and merging
 - Download merged conversations as WAV files
 
+## Required API Keys
+
+This application requires three API keys to function:
+
+1. **OpenAI API Key**: Used for high-quality text-to-speech voices
+   - Get it from: https://platform.openai.com/account/api-keys
+
+2. **ElevenLabs API Key**: Used for additional voice options and multilingual support
+   - Get it from: https://elevenlabs.io/subscription
+
+3. **Anthropic API Key**: Used for generating natural conversations
+   - Get it from: https://console.anthropic.com/account/keys
+
 ## Setup
 
 1. Clone the repository:
@@ -34,10 +47,12 @@ npm install
 cp .env.example .env
 ```
 
-4. Add your Anthropic API key to `.env`:
+4. Add your API keys to `.env`:
 
 ```
-ANTHROPIC_API_KEY=your-api-key-here
+OPENAI_API_KEY=your-openai-key-here
+ELEVENLABS_API_KEY=your-elevenlabs-key-here
+ANTHROPIC_API_KEY=your-anthropic-key-here
 ```
 
 5. Run the development server:
@@ -134,4 +149,21 @@ export const lowVolumeExpressions = [
 6. Initialize audio to generate speech
 7. Play sequence or merge audio for final output
 8. Download the merged conversation
+
+## Voice Options
+
+The application provides two sets of voices:
+
+### OpenAI Voices
+- Alloy (Neutral)
+- Echo (Male)
+- Fable (Female)
+- Onyx (Male)
+- Nova (Female)
+- Shimmer (Female)
+
+### ElevenLabs Voices
+- Bill (Male, available in Multilingual and Turbo versions)
+- Rachel (Female, available in Multilingual and Turbo versions)
+- Aria (Female, Multilingual)
 
