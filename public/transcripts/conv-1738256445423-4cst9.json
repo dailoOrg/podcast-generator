@@ -1,0 +1,53 @@
+{
+  "id": "conv-1738256445423-4cst9",
+  "title": "eleven labs response",
+  "speakers": [
+    {
+      "id": "speaker-1",
+      "name": "Alex",
+      "voice": "echo"
+    }
+  ],
+  "dialogue": [
+    {
+      "speakerId": "speaker-1",
+      "text": "Laughter: \"HAhaha....\""
+    },
+    {
+      "speakerId": "speaker-1",
+      "text": "- Amazement: \"Ooooooohhh, wow\" or \"Whoa\""
+    },
+    {
+      "speakerId": "speaker-1",
+      "text": "- Realization: \"Ahh ok\", \"Hmm, I see now.\", \"Oh, ok.\", \"Ah, ok\""
+    },
+    {
+      "speakerId": "speaker-1",
+      "text": "- Sympathy: \"Awww\""
+    },
+    {
+      "speakerId": "speaker-1",
+      "text": "- Contemplation: \"Hmm, yeah\" or \"Hmm, yeah, I think so\""
+    },
+    {
+      "speakerId": "speaker-1",
+      "text": "- Surprise: \"oh wow\", \"ah.. ok, I...I mean, who would've thought?\" or \"oh. That's amazing!\""
+    },
+    {
+      "speakerId": "speaker-1",
+      "text": "- Attentiveness: \"Uh-huh\", \"Yeah, absolutely\", or \"Yeah, I agree\""
+    },
+    {
+      "speakerId": "speaker-1",
+      "text": "- Contentment: \"Ahhh\" or \"Ahhh, yeah\""
+    },
+    {
+      "speakerId": "speaker-1",
+      "text": "- Agreement: \"Mhm\", \"Yeah, absolutely\" or \"yeah, of course\""
+    },
+    {
+      "speakerId": "speaker-1",
+      "text": "- Alarm: \"Ugh, yikes\" or \"Ugh, really?\""
+    }
+  ]
+}

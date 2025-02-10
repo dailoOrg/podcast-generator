@@ -2,6 +2,7 @@ export interface Speaker {
   id: string;
   name: string;
   voice: string;
+  gender: 'male' | 'female';
 }
 
 export interface DialogueLine {
