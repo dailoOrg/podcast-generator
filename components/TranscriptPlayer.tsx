@@ -14,6 +14,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 import { X } from "lucide-react";
+import { ALL_VOICES, OPENAI_VOICES, ELEVENLABS_VOICES, type VoiceConfig } from '@/config/voices';
 
 interface AudioFile {
   speakerId: string;
@@ -66,16 +67,7 @@ export default function TranscriptPlayer() {
   const [tooltipOpen, setTooltipOpen] = useState(false);
   const [speakerTTSSelections, setSpeakerTTSSelections] = useState<SpeakerTTSSelection[]>([]);
 
-  const availableTTSModels: TTSModel[] = [
-    { id: 'alloy', name: 'OpenAI Alloy', provider: 'openai', gender: 'neutral' }, // Original Jane
-    { id: 'echo', name: 'OpenAI Echo', provider: 'openai', gender: 'male' }, // Original alex
-    { id: 'fable', name: 'OpenAI Fable', provider: 'openai', gender: 'female' },
-    { id: 'onyx', name: 'OpenAI Onyx', provider: 'openai', gender: 'male' },
-    { id: 'nova', name: 'OpenAI Nova', provider: 'openai', gender: 'female' },
-    { id: 'shimmer', name: 'OpenAI Shimmer', provider: 'openai', gender: 'female' },
-    { id: 'eleven-multilingual', name: 'ElevenLabs Bill Oxley', provider: 'elevenlabs', gender: 'male' },
-    { id: 'eleven-flash', name: 'ElevenLabs Rachel', provider: 'elevenlabs', gender: 'female' },
-  ];
+  const availableTTSModels = ALL_VOICES;
 
   useEffect(() => {
     const loadTranscripts = async () => {
@@ -151,9 +143,8 @@ export default function TranscriptPlayer() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             text: line.text,
-            voice: selectedModel?.gender || 'neutral',
-            model: selectedModel?.provider || 'openai',
-            modelId: selectedModel?.id || 'alloy'
+            voiceId: selectedModel?.id || 'alloy',
+            provider: selectedModel?.provider || 'openai'
           }),
         });
 
@@ -441,24 +432,20 @@ export default function TranscriptPlayer() {
                           <SelectContent>
                             <SelectGroup>
                               <SelectLabel>OpenAI Voices</SelectLabel>
-                              {availableTTSModels
-                                .filter(model => model.provider === 'openai')
-                                .map(model => (
-                                  <SelectItem key={model.id} value={model.id}>
-                                    {model.name} ({model.gender})
-                                  </SelectItem>
-                                ))}
+                              {OPENAI_VOICES.map(voice => (
+                                <SelectItem key={voice.id} value={voice.id}>
+                                  {voice.name} ({voice.gender})
+                                </SelectItem>
+                              ))}
                             </SelectGroup>
                             <SelectSeparator />
                             <SelectGroup>
                               <SelectLabel>ElevenLabs Voices</SelectLabel>
-                              {availableTTSModels
-                                .filter(model => model.provider === 'elevenlabs')
-                                .map(model => (
-                                  <SelectItem key={model.id} value={model.id}>
-                                    {model.name} ({model.gender})
-                                  </SelectItem>
-                                ))}
+                              {ELEVENLABS_VOICES.map(voice => (
+                                <SelectItem key={voice.id} value={voice.id}>
+                                  {voice.name} ({voice.gender})
+                                </SelectItem>
+                              ))}
                             </SelectGroup>
                           </SelectContent>
                         </Select>
