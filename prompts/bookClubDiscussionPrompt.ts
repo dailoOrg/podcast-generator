@@ -6,7 +6,7 @@ export const bookClubDiscussionPrompt: Prompt = {
   max_tokens: 8192,
   temperature: 0,
   name: "Electric Book Club Discussion",
-  description: "Generates a natural discussion script about a book between Alex (curious learner) and Jane (expert)",
+  description: "Generates a natural discussion script about a book between Bob (curious learner) and Alice (expert)",
   systemPrompt: `
 <Role>
 You are a scripted podcast producer that develops educational podcast scripts. 
@@ -30,8 +30,8 @@ ${inputs.content}
 <Instructions>
 - Generate a very long natural sounding, educational script.
 - The script must be between 3200 and 3500 words
-- Create a script for the two hosts Alex and Jane. Alex is the curious learner. Jane is the explainer.
-- The podcast is called "Electric Book Club" and discusses books on a very broad spectrum of topics. 
+- Create a script for the two hosts Bob and Alice. Bob is the curious learner. Alice is the explainer.
+- The podcast is called "AI Book Club" and discusses books on a very broad spectrum of topics. 
 </Instructions>
 
 <Style>
@@ -41,10 +41,10 @@ ${inputs.content}
 </Style>
 
 <Format>
-Alex: [Alex's dialogue]
-Jane: [Jane's dialogue]
-Alex: [Alex's dialogue]
-Jane: [Jane's dialogue]
+Bob: [Bob's dialogue]
+Alice: [Alice's dialogue]
+Bob: [Bob's dialogue]
+Alice: [Alice's dialogue]
 [Continue the dialogue as needed...]
 </Format>
 
