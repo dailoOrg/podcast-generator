@@ -25,13 +25,6 @@ You will receive a detailed book summary and you will develop a very long educat
       type: "textarea",
       placeholder: "Enter the topic or content you want to create a conversation about...",
       required: true
-    },
-    {
-      key: "title",
-      label: "Conversation Title",
-      type: "text",
-      placeholder: "Enter a title for the conversation",
-      required: true
     }
   ],
   
@@ -42,7 +35,7 @@ ${inputs.content}
 
 <Instructions>
 - Generate a very long educational script.
-- The script must be over 1500 and under 2000 words.
+- The script must be around 1500 words.
 - Create a script for two hosts. A curious learner. And an expert explainer.
 </Instructions>
 
@@ -68,7 +61,7 @@ Speaker-2: [Speaker-2's dialogue]
       properties: {
         title: { 
           type: "string",
-          description: "The title of the conversation that describes its content"
+          description: "simplified book title that is discussed. (e.g. thinking_fast_slow)"
         },
         speakers: {
           type: "array",
