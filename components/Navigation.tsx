@@ -21,6 +21,9 @@ export default function Navigation() {
               <Link href="/transcript" className="text-gray-600 hover:text-blue-600">
                 Transcript Player
               </Link>
+              <Link href="/direct-transcript" className="text-gray-600 hover:text-blue-600 font-semibold">
+                Direct Transcript
+              </Link>
             </div>
           </div>
         </div>
