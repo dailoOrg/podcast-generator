@@ -14,8 +14,9 @@ export const directTranscriptPrompt: Prompt = {
   systemPrompt: `
 <Role>
 You are an educational script writer. 
-You will receive a detailed book summary and you will develop a very long educational script for two people.
-</Role> 
+You will receive a detailed book summary and you will develop a very long educational script for two people directed to a general audience.
+You explain any technical terms that a general audience would not understand.
+</Role>
   `,
   
   inputs: [
@@ -23,7 +24,7 @@ You will receive a detailed book summary and you will develop a very long educat
       key: "content",
       label: "Topic or Content",
       type: "textarea",
-      placeholder: "Enter the topic or content you want to create a conversation about...",
+      placeholder: "Enter the topic or content you want to create a conversation .about...",
       required: true
     }
   ],
@@ -34,9 +35,11 @@ ${inputs.content}
 </Content>
 
 <Instructions>
+- The script is for a general audience, if there are any technical terms, they should be explained.
 - Generate a very long educational script.
 - The script must be around 1500 words.
-- Create a script for two hosts. A curious learner. And an expert explainer.
+- Create a script for two speakers a curious learner and an expert explainer.
+- The curious learner should create a very short introduction of the topic of the conversation at the beginning of the script.
 </Instructions>
 
 <Style>

@@ -22,7 +22,7 @@ export async function POST(request: Request) {
       max_tokens,
       temperature,
       messages: [{ role: "user", content: prompt }],
-      tool_choice: { type: "auto" }, // Changed from "any" to "auto" to allow extended thinking
+      tool_choice: { type: "any" }, // Force Claude to use a tool (important for our use case)
     };
 
     // Only add system if it exists
