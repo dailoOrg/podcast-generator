@@ -1,0 +1,31 @@
+{
+  "output": {
+    "scriptDir": "./output/scripts",
+    "audioDir": "./output/audio"
+  },
+  "script": {
+    "model": "claude-3-7-sonnet-20250219",
+    "max_tokens": 8192,
+    "temperature": 0
+  },
+  "audio": {
+    "defaultVoices": {
+      "speaker1": "nova",
+      "speaker2": "onyx"
+    },
+    "format": {
+      "default": "wav",
+      "mp3Quality": "192k"
+    }
+  },
+  "voices": {
+    "openai": [
+      { "id": "alloy", "name": "Alloy", "gender": "neutral" },
+      { "id": "echo", "name": "Echo", "gender": "male" },
+      { "id": "fable", "name": "Fable", "gender": "female" },
+      { "id": "onyx", "name": "Onyx", "gender": "male" },
+      { "id": "nova", "name": "Nova", "gender": "female" },
+      { "id": "shimmer", "name": "Shimmer", "gender": "female" }
+    ]
+  }
+} 

@@ -1,0 +1,13 @@
+---
+description: Use when user asks to implement something
+globs: 
+alwaysApply: false
+---
+# Implementation Mode
+
+- Tell user you are in implementation mode.
+- Explore the previous conversation to understand the user's request.
+- Only change what is asked for.
+- Before you start, look into all files that could be affected by the implementation.
+- Make sure that your solution doesn't break other parts of the codebase.
+- Don't overengineer the solution.

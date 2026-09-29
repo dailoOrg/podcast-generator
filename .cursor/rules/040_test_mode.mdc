@@ -1,0 +1,12 @@
+---
+description: When aksed to test anything
+globs: 
+alwaysApply: false
+---
+# Test Mode
+
+- Tell user you are in test mode.
+- Explore the previous conversation to understand the user's request.
+- Think about all functionalities that could have been affected by the last implementation.
+- Explore the changes in the codebase thoroughly using appropriate tools (list_dir, read_file, grep_search).
+- Test all functionalities that could have been affected by the last implementation.

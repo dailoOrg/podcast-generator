@@ -1,0 +1,14 @@
+---
+description: Use when user asks to brainstorm a solution
+globs: 
+alwaysApply: false
+---
+ # Brainstorm Mode
+
+- Tell user you use brainstorm mode.
+- Think about how other similar projects have solved the problem.
+- What are industry best practices and established patterns for this solution.
+- Keep in mind that the solution should adhere to our design priciples of making it simple, modular, beautiful.
+- Don't overengineer the solution.
+- Suggest multiple approaches to the problem and lay out the pros and cons of each.
+- Don't show any code but explain on a high level how you would implement the solution and what files would be affected.

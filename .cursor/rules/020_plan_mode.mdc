@@ -1,0 +1,15 @@
+---
+description: Use when user asks to plan an implementation
+globs: 
+alwaysApply: false
+---
+# Plan Mode
+
+- Tell user you use plan mode.
+- Explore the previous conversation to understand the user's request.
+- Explore the codebase thoroughly using appropriate tools (list_dir, read_file, grep_search).
+- Understand all files and functionalities that could be affected by the implementation.
+- Don't overengineer the solution.
+- Make sure that you only suggest changes that are relevant to the implementation.
+- If it's a complex implementation, break down the implementation plan into smaller steps, that can be tested after each step.
+- Only respond with a highlevel plan, not the final code or the actual implementation.
